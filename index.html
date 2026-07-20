@@ -20,6 +20,7 @@
             --main-shadow: 0 0 15px #00d2ff;
         }
 
+        /* --- HACKING MODE OVERRIDE --- */
         body.hacking-mode {
             --main-color: #ff0000 !important;
             --main-shadow: 0 0 25px #ff0000 !important;
@@ -34,13 +35,24 @@
         body, html {
             margin: 0;
             padding: 0;
-            width: 100vw;
-            height: 100vh;
             overflow: hidden;
             background-color: #000;
             font-family: 'Courier New', monospace;
             color: var(--main-color);
-            cursor: auto;
+            cursor: none;
+        }
+
+        #custom-cursor {
+            position: fixed;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--main-color);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--main-color);
+            z-index: 9999;
+            transition: width 0.15s, height 0.15s;
         }
 
         #theme-switcher {
@@ -82,27 +94,22 @@
             opacity: 0.85;
         }
 
-        canvas#matrix {
+        canvas {
+            display: block;
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 0;
-            pointer-events: none;
+            z-index: -1;
         }
 
         .icerik-kutusu {
-            position: relative;
-            z-index: 10;
+            position: absolute;
+            top: 30px;
             width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 30px;
-            box-sizing: border-box;
+            text-align: center;
+            z-index: 1;
         }
 
         .glitch {
@@ -165,7 +172,7 @@
             margin: 5px 0;
         }
         .buton-kutusu {
-            margin-top: 15px;
+            margin-top: 20px;
             text-align: center;
         }
         .siber-buton {
@@ -182,22 +189,23 @@
             text-transform: uppercase;
             transition: 0.3s;
             box-shadow: var(--main-shadow);
-            cursor: pointer;
         }
         .siber-buton:hover {
             background-color: var(--main-color);
             color: black;
             box-shadow: 0 0 20px var(--main-color), 0 0 40px var(--main-color);
+            cursor: pointer;
         }
 
+        /* --- B PLANİ ENTEGRE TERMİNAL KUTUSU --- */
         #hacker-terminal {
             width: 550px;
-            height: 180px;
+            height: 220px;
             max-width: 90%;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--main-color);
             box-shadow: var(--main-shadow);
-            margin: 15px auto 0 auto;
+            margin: 25px auto 0 auto;
             padding: 15px;
             text-align: left;
             font-family: 'Courier New', monospace;
@@ -231,57 +239,13 @@
             font-family: 'Courier New', monospace;
             font-size: 13px;
             width: 100%;
-            cursor: text;
-        }
-
-        /* --- SİBER OYUN EKRANI EKLENTİSİ --- */
-        #game-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        #close-game-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: 2px solid var(--main-color);
-            color: var(--main-color);
-            font-size: 18px;
-            font-weight: bold;
-            padding: 5px 15px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            box-shadow: var(--main-shadow);
-            transition: 0.3s;
-            z-index: 10000;
-        }
-
-        #close-game-btn:hover {
-            background: var(--main-color);
-            color: #000;
-        }
-
-        #flappy-canvas {
-            border: 2px solid var(--main-color);
-            box-shadow: var(--main-shadow);
-            background: #050505;
-            max-width: 95%;
-            max-height: 70vh;
-            cursor: pointer;
+            cursor: none;
         }
     </style>
 </head>
 <body>
+
+    <div id="custom-cursor"></div>
 
     <button id="theme-switcher">🎨 TEMA DEĞİŞTİR</button>
 
@@ -301,9 +265,9 @@
         <div class="buton-kutusu">
             <a href="https://instagram.com/hazrwti" target="_blank" class="siber-buton">Instagram</a>
             <a href="https://t.me/gotunu" target="_blank" class="siber-buton">Telegram</a>
-            <button id="game-btn" class="siber-buton">Oyun</button>
         </div>
 
+        <!-- ENTEGRE TERMİNAL -->
         <div id="hacker-terminal" onclick="document.getElementById('terminal-input').focus()">
             <div id="terminal-history">Siber sisteme başarıyla bağlanıldı.
 Komut listesi için 'help' yazın.</div>
@@ -314,15 +278,37 @@ Komut listesi için 'help' yazın.</div>
         </div>
     </div>
 
-    <!-- Siber Mini Oyun Arayüzü -->
-    <div id="game-overlay">
-        <button id="close-game-btn">X</button>
-        <h2 class="glitch" data-text="CYBER FLAPPER">CYBER FLAPPER</h2>
-        <p style="font-size: 12px; margin-bottom: 15px; color: var(--main-color);">Zıplamak için Ekrana Tıkla veya SPACE tuşuna bas</p>
-        <canvas id="flappy-canvas" width="400" height="500"></canvas>
-    </div>
-
     <script>
+        // --- ÖZEL İMLEÇ HAREKETİ ---
+        const cursor = document.getElementById('custom-cursor');
+        window.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // --- SİBER SES EFEKTLERİ ---
+        function playCyberSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.04);
+                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.04);
+            } catch (e) {}
+        }
+
+        document.querySelectorAll('.siber-buton, #theme-switcher, #terminal-input').forEach(el => {
+            el.addEventListener('mouseenter', playCyberSound);
+            el.addEventListener('click', playCyberSound);
+        });
+
         // --- TEMA DEĞİŞTİRİCİ ---
         const themes = ['', 'theme-red', 'theme-blue'];
         let currentTheme = 0;
@@ -358,7 +344,7 @@ Komut listesi için 'help' yazın.</div>
             }
         }, 3500);
 
-        // --- İNTERAKTİF TERMİNAL ---
+        // --- INTERAKTIF TERMINAL MANTIGI ---
         const termInput = document.getElementById('terminal-input');
         const termHistory = document.getElementById('terminal-history');
         const termContainer = document.getElementById('hacker-terminal');
@@ -366,6 +352,8 @@ Komut listesi için 'help' yazın.</div>
         termInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const command = termInput.value.trim().toLowerCase();
+                playCyberSound();
+                
                 let reply = `\nWexemir@siber-us:~$ ${termInput.value}\n`;
 
                 if (command === 'help') {
@@ -417,7 +405,7 @@ Komut listesi için 'help' yazın.</div>
             }, 4000);
         }
 
-        // --- MATRİX YAĞMURU ---
+        // --- MATRIX YAĞMURU ---
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
@@ -466,98 +454,7 @@ Komut listesi için 'help' yazın.</div>
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
+    </script>
 
-        // --- FLAPPY SİBER MİNİ OYUN MOTORU ---
-        const gameOverlay = document.getElementById('game-overlay');
-        const gameBtn = document.getElementById('game-btn');
-        const closeGameBtn = document.getElementById('close-game-btn');
-        const gameCanvas = document.getElementById('flappy-canvas');
-        const gameCtx = gameCanvas.getContext('2d');
-
-        let animationId = null;
-        let gameRunning = false;
-        let bird, pipes, score, frameCount, gameOverState;
-
-        function resetGame() {
-            bird = { x: 50, y: 200, size: 20, gravity: 0.35, velocity: 0, jump: -6 };
-            pipes = [];
-            score = 0;
-            frameCount = 0;
-            gameOverState = false;
-        }
-
-        function spawnPipe() {
-            const gap = 130;
-            const minHeight = 40;
-            const maxHeight = gameCanvas.height - gap - minHeight;
-            const height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-            pipes.push({ x: gameCanvas.width, top: height, bottom: gameCanvas.height - height - gap, width: 45, passed: false });
-        }
-
-        function runGame() {
-            if (!gameRunning) return;
-
-            gameCtx.fillStyle = '#050505';
-            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-            const activeColor = getActiveColor();
-
-            if (!gameOverState) {
-                bird.velocity += bird.gravity;
-                bird.y += bird.velocity;
-
-                if (bird.y + bird.size > gameCanvas.height || bird.y < 0) {
-                    gameOverState = true;
-                }
-
-                if (frameCount % 90 === 0) {
-                    spawnPipe();
-                }
-                frameCount++;
-
-                for (let i = pipes.length - 1; i >= 0; i--) {
-                    pipes[i].x -= 2.5;
-
-                    if (!pipes[i].passed && pipes[i].x + pipes[i].width < bird.x) {
-                        pipes[i].passed = true;
-                        score++;
-                    }
-
-                    if (
-                        bird.x + bird.size > pipes[i].x &&
-                        bird.x < pipes[i].x + pipes[i].width &&
-                        (bird.y < pipes[i].top || bird.y + bird.size > gameCanvas.height - pipes[i].bottom)
-                    ) {
-                        gameOverState = true;
-                    }
-
-                    if (pipes[i].x + pipes[i].width < 0) {
-                        pipes.splice(i, 1);
-                    }
-                }
-            }
-
-            gameCtx.fillStyle = activeColor;
-            pipes.forEach(p => {
-                gameCtx.fillRect(p.x, 0, p.width, p.top);
-                gameCtx.fillRect(p.x, gameCanvas.height - p.bottom, p.width, p.bottom);
-            });
-
-            gameCtx.fillStyle = '#fff';
-            gameCtx.shadowColor = activeColor;
-            gameCtx.shadowBlur = 10;
-            gameCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
-            gameCtx.shadowBlur = 0;
-
-            gameCtx.fillStyle = activeColor;
-            gameCtx.font = "20px 'Courier New'";
-            gameCtx.fillText(`DATA: ${score}`, 15, 30);
-
-            if (gameOverState) {
-                gameCtx.fillStyle = 'rgba(0,0,0,0.85)';
-                gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-                gameCtx.fillStyle = '#ff0000';
-                gameCtx.font = "26px 'Courier New'";
-                gameCtx.fillText("BAGLANTI KOPACAK!", 70, 220);
-                gameCtx.fillStyle = activeColor;
-                gameCtx.fo
+</body>
+</html>
