@@ -34,15 +34,13 @@
         body, html {
             margin: 0;
             padding: 0;
+            width: 100vw;
+            height: 100vh;
             overflow: hidden;
             background-color: #000;
             font-family: 'Courier New', monospace;
             color: var(--main-color);
-            cursor: auto; /* İmleç tarayıcı genelinde normal çalışsın ki kaybolma riski olmasın */
-        }
-
-        #custom-cursor {
-            display: none; /* Çakışma yapan özel imleç tamamen kaldırıldı, sistemin kendi imleci her zaman stabil çalışır */
+            cursor: auto;
         }
 
         #theme-switcher {
@@ -85,21 +83,26 @@
         }
 
         canvas#matrix {
-            display: block;
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .icerik-kutusu {
-            position: absolute;
-            top: 30px;
+            position: relative;
+            z-index: 10;
             width: 100%;
-            text-align: center;
-            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 30px;
+            box-sizing: border-box;
         }
 
         .glitch {
@@ -162,7 +165,7 @@
             margin: 5px 0;
         }
         .buton-kutusu {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
         }
         .siber-buton {
@@ -189,12 +192,12 @@
 
         #hacker-terminal {
             width: 550px;
-            height: 220px;
+            height: 180px;
             max-width: 90%;
             background: rgba(0, 0, 0, 0.85);
             border: 2px solid var(--main-color);
             box-shadow: var(--main-shadow);
-            margin: 25px auto 0 auto;
+            margin: 15px auto 0 auto;
             padding: 15px;
             text-align: left;
             font-family: 'Courier New', monospace;
@@ -240,7 +243,7 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -260,7 +263,7 @@
             font-family: 'Courier New', monospace;
             box-shadow: var(--main-shadow);
             transition: 0.3s;
-            z-index: 2001;
+            z-index: 10000;
         }
 
         #close-game-btn:hover {
@@ -557,4 +560,4 @@ Komut listesi için 'help' yazın.</div>
                 gameCtx.font = "26px 'Courier New'";
                 gameCtx.fillText("BAGLANTI KOPACAK!", 70, 220);
                 gameCtx.fillStyle = activeColor;
-                gameCtx.fon
+                gameCtx.fo
