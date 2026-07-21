@@ -194,7 +194,7 @@
             background-color: var(--main-color);
             color: black;
             box-shadow: 0 0 20px var(--main-color), 0 0 40px var(--main-color);
-            cursor: pointer;
+            cursor: none;
         }
 
         /* --- B PLANİ ENTEGRE TERMİNAL KUTUSU --- */
@@ -241,6 +241,50 @@
             width: 100%;
             cursor: none;
         }
+
+        /* --- FLAPPY BIRD OYUN EKRANI (OVERLAY) --- */
+        #game-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #close-game-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 2px solid var(--main-color);
+            color: var(--main-color);
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 15px;
+            cursor: none;
+            font-family: 'Courier New', monospace;
+            box-shadow: var(--main-shadow);
+            z-index: 100000;
+            transition: 0.3s;
+        }
+        #close-game-btn:hover {
+            background: var(--main-color);
+            color: #000;
+        }
+
+        #flappy-canvas {
+            border: 2px solid var(--main-color);
+            box-shadow: var(--main-shadow);
+            background: #050505;
+            max-width: 95%;
+            cursor: none;
+        }
     </style>
 </head>
 <body>
@@ -265,6 +309,7 @@
         <div class="buton-kutusu">
             <a href="https://instagram.com/hazrwti" target="_blank" class="siber-buton">Instagram</a>
             <a href="https://t.me/gotunu" target="_blank" class="siber-buton">Telegram</a>
+            <button id="game-btn" class="siber-buton">🎮 OYUN</button>
         </div>
 
         <!-- ENTEGRE TERMİNAL -->
@@ -276,6 +321,14 @@ Komut listesi için 'help' yazın.</div>
                 <input type="text" id="terminal-input" autocomplete="off" autofocus>
             </div>
         </div>
+    </div>
+
+    <!-- OYUN MODÜLÜ OVERLAY -->
+    <div id="game-overlay">
+        <button id="close-game-btn">X KAPAT</button>
+        <h2 class="glitch" data-text="CYBER FLAPPER" style="font-size: 2rem; margin-bottom: 5px;">CYBER FLAPPER</h2>
+        <p style="font-size: 12px; margin-bottom: 15px; color: var(--main-color);">Zıplamak için Sol Tıkla veya SPACE tuşunu kullan</p>
+        <canvas id="flappy-canvas" width="400" height="400"></canvas>
     </div>
 
     <script>
@@ -304,7 +357,7 @@ Komut listesi için 'help' yazın.</div>
             } catch (e) {}
         }
 
-        document.querySelectorAll('.siber-buton, #theme-switcher, #terminal-input').forEach(el => {
+        document.querySelectorAll('.siber-buton, #theme-switcher, #terminal-input, #close-game-btn').forEach(el => {
             el.addEventListener('mouseenter', playCyberSound);
             el.addEventListener('click', playCyberSound);
         });
@@ -405,56 +458,92 @@ Komut listesi için 'help' yazın.</div>
             }, 4000);
         }
 
-        // --- MATRIX YAĞMURU ---
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
+        // --- CYBER FLAPPER OYUN MOTORU ---
+        const gameOverlay = document.getElementById('game-overlay');
+        const gameBtn = document.getElementById('game-btn');
+        const closeGameBtn = document.getElementById('close-game-btn');
+        const gameCanvas = document.getElementById('flappy-canvas');
+        const gameCtx = gameCanvas.getContext('2d');
 
-        canvas.height = window.innerHeight;
-        canvas.width = window.innerWidth;
+        let animationId = null;
+        let gameRunning = false;
+        let bird, pipes, score, gameOverState;
 
-        const matrixChar = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=<>[]#!?';
-        const characters = matrixChar.split('');
-
-        const fontSize = 16;
-        const columns = canvas.width / fontSize; 
-
-        const drops = [];
-        for (let x = 0; x < columns; x++) {
-            drops[x] = 1; 
+        function resetGame() {
+            bird = { x: 50, y: 160, size: 20, gravity: 0.35, velocity: 0, jump: -6 };
+            pipes = [];
+            score = 0;
+            gameOverState = false;
         }
 
-        function getActiveColor() {
-            if (document.body.classList.contains('hacking-mode')) return '#ff0000';
-            if (document.body.classList.contains('theme-red')) return '#ff0033';
-            if (document.body.classList.contains('theme-blue')) return '#00d2ff';
-            return '#00ff00';
-        }
+        function runGame() {
+            if (!gameRunning) return;
 
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            gameCtx.fillStyle = '#050505';
+            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-            ctx.fillStyle = getActiveColor();
-            ctx.font = fontSize + 'px Courier New';
+            const activeColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color').trim();
 
-            for (let i = 0; i < drops.length; i++) {
-                const text = characters[Math.floor(Math.random() * characters.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (!gameOverState) {
+                bird.velocity += bird.gravity;
+                bird.y += bird.velocity;
 
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+                if (bird.y + bird.size > gameCanvas.height || bird.y < 0) {
+                    gameOverState = true;
                 }
-                drops[i]++;
+
+                if (Math.random() < 0.02) {
+                    const gap = 120;
+                    const height = Math.floor(Math.random() * 180) + 40;
+                    pipes.push({ x: gameCanvas.width, top: height, bottom: gameCanvas.height - height - gap, width: 45, passed: false });
+                }
+
+                pipes.forEach(p => p.x -= 2.5);
+                pipes = pipes.filter(p => p.x + p.width > 0);
+
+                pipes.forEach(p => {
+                    if (
+                        bird.x + bird.size > p.x &&
+                        bird.x < p.x + p.width &&
+                        (bird.y < p.top || bird.y + bird.size > gameCanvas.height - p.bottom)
+                    ) {
+                        gameOverState = true;
+                    }
+                    if (!p.passed && p.x + p.width < bird.x) {
+                        score += 10;
+                        p.passed = true;
+                    }
+                });
             }
+
+            // Boruları Çiz
+            gameCtx.fillStyle = activeColor;
+            pipes.forEach(p => {
+                gameCtx.fillRect(p.x, 0, p.width, p.top);
+                gameCtx.fillRect(p.x, gameCanvas.height - p.bottom, p.width, p.bottom);
+            });
+
+            // Kuşu Çiz
+            gameCtx.fillStyle = '#ffffff';
+            gameCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
+
+            // Skor Tablosu
+            gameCtx.fillStyle = activeColor;
+            gameCtx.font = "18px 'Courier New'";
+            gameCtx.fillText(`DATA SCORE: ${score}`, 15, 30);
+
+            if (gameOverState) {
+                gameCtx.fillStyle = 'rgba(0,0,0,0.85)';
+                gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                gameCtx.fillStyle = '#ff0000';
+                gameCtx.font = "22px 'Courier New'";
+                gameCtx.fillText("BAĞLANTI KOPARILDI!", 70, 170);
+                gameCtx.fillStyle = activeColor;
+                gameCtx.font = "14px 'Courier New'";
+                gameCtx.fillText("Yeniden Başlamak İçin Tıkla", 80, 210);
+            }
+
+            animationId = requestAnimationFrame(runGame);
         }
 
-        setInterval(drawMatrix, 33);
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
-
-</body>
-</html>
+        function
