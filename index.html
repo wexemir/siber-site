@@ -20,29 +20,41 @@
             --main-shadow: 0 0 15px #00d2ff;
         }
 
+        /* --- HACKING MODE OVERRIDE --- */
+        body.hacking-mode {
+            --main-color: #ff0000 !important;
+            --main-shadow: 0 0 25px #ff0000 !important;
+            animation: red-alert 0.2s infinite alternate;
+        }
+
+        @keyframes red-alert {
+            0% { background-color: #000; }
+            100% { background-color: #1a0000; }
+        }
+
         body, html {
             margin: 0;
             padding: 0;
-            width: 100vw;
-            height: 100vh;
             overflow: hidden;
             background-color: #000;
             font-family: 'Courier New', monospace;
             color: var(--main-color);
+            cursor: none;
         }
 
-        /* Matrix Tuvali - En altta ve tıklamalara tamamen kapalı */
-        canvas#matrix {
+        #custom-cursor {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--main-color);
+            border-radius: 50%;
             pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--main-color);
+            z-index: 9999;
+            transition: width 0.15s, height 0.15s;
         }
 
-        /* Tema Değiştirici - En üstte */
         #theme-switcher {
             position: fixed;
             top: 20px;
@@ -54,47 +66,118 @@
             font-family: 'Courier New', monospace;
             font-weight: bold;
             cursor: pointer;
-            z-index: 100;
+            z-index: 1000;
             box-shadow: var(--main-shadow);
             border-radius: 4px;
+            transition: 0.3s;
         }
         #theme-switcher:hover {
             background: var(--main-color);
             color: #000;
         }
 
-        /* Ana İçerik Katmanı - Tıklanabilir olması için z-index yüksek ve pointer-events açık */
-        .icerik-kutusu {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            text-align: center;
-            pointer-events: auto;
+        #console-logs {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 290px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--main-color);
+            padding: 10px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            color: var(--main-color);
+            z-index: 1000;
+            box-shadow: var(--main-shadow);
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0.85;
         }
 
-        .siber-profil-avatar {
-            width: 100px;
-            height: 100px;
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .icerik-kutusu {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .glitch {
+            font-size: 3rem;
+            position: relative;
+            text-transform: uppercase;
+            text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                        -0.025em -0.05em 0 var(--main-color),
+                        0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            animation: glitch 1s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch 650ms infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+            transform: translate(-0.025em, -0.0125em);
+            opacity: 0.8;
+        }
+
+        .glitch::after {
+            animation: glitch 375ms infinite;
+            clip-path: polygon(0 80%, 100% 20%, 100% 100%, 0 100%);
+            transform: translate(0.025em, 0.025em);
+            opacity: 0.8;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 var(--main-color), 0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
+            14% { text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75), -0.05em -0.025em 0 var(--main-color), 0.025em 0.05em 0 rgba(0, 0, 255, 0.75); }
+            15% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 var(--main-color), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
+            49% { text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75), 0.025em 0.025em 0 var(--main-color), -0.05em -0.05em 0 rgba(0, 0, 255, 0.75); }
+            50% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 var(--main-color), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
+            99% { text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75), 0.05em 0 0 var(--main-color), 0 -0.05em 0 rgba(0, 0, 255, 0.75); }
+            100% { text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75), -0.025em -0.025em 0 var(--main-color), -0.025em -0.05em 0 rgba(0, 0, 255, 0.75); }
+        }
+
+        .siber-profil-fotosu {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
             border: 2px solid var(--main-color);
             border-radius: 50%;
             box-shadow: var(--main-shadow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin-bottom: 10px;
-            background: rgba(0,0,0,0.85);
+            margin: 15px auto 5px auto;
+            display: block;
         }
-
+        .the-best-yazisi {
+            font-size: 1.1rem;
+            color: #888;
+            margin: 5px 0;
+        }
+        .buton-kutusu {
+            margin-top: 20px;
+            text-align: center;
+        }
         .siber-buton {
             display: inline-block;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: transparent;
             color: var(--main-color);
             border: 2px solid var(--main-color);
             padding: 10px 25px;
@@ -104,113 +187,254 @@
             font-weight: bold;
             font-size: 15px;
             text-transform: uppercase;
+            transition: 0.3s;
             box-shadow: var(--main-shadow);
-            cursor: pointer;
-            position: relative;
-            z-index: 20;
         }
         .siber-buton:hover {
             background-color: var(--main-color);
             color: black;
-        }
-
-        /* OYUN EKRANI (OVERLAY) */
-        #game-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 99999;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        #close-game-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: 2px solid var(--main-color);
-            color: var(--main-color);
-            font-size: 18px;
-            font-weight: bold;
-            padding: 5px 15px;
+            box-shadow: 0 0 20px var(--main-color), 0 0 40px var(--main-color);
             cursor: pointer;
+        }
+
+        /* --- B PLANİ ENTEGRE TERMİNAL KUTUSU --- */
+        #hacker-terminal {
+            width: 550px;
+            height: 220px;
+            max-width: 90%;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid var(--main-color);
+            box-shadow: var(--main-shadow);
+            margin: 25px auto 0 auto;
+            padding: 15px;
+            text-align: left;
             font-family: 'Courier New', monospace;
-            box-shadow: var(--main-shadow);
-            z-index: 100000;
-        }
-        #close-game-btn:hover {
-            background: var(--main-color);
-            color: #000;
+            font-size: 13px;
+            overflow-y: auto;
+            border-radius: 6px;
         }
 
-        #flappy-canvas {
-            border: 2px solid var(--main-color);
-            box-shadow: var(--main-shadow);
-            background: #050505;
-            cursor: pointer;
+        #terminal-history {
+            white-space: pre-wrap;
+            margin-bottom: 8px;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        .terminal-prefix {
+            color: var(--main-color);
+            font-weight: bold;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            width: 100%;
+            cursor: none;
         }
     </style>
 </head>
 <body>
 
-    <button id="theme-switcher">🎨 TEMA</button>
+    <div id="custom-cursor"></div>
 
-    <!-- Matrix Arka Plan -->
+    <button id="theme-switcher">🎨 TEMA DEĞİŞTİR</button>
+
+    <div id="console-logs">
+        <div>[SYS] System Initialized...</div>
+    </div>
+
     <canvas id="matrix"></canvas>
 
-    <!-- Ana İçerik -->
     <div class="icerik-kutusu">
-        <div class="siber-profil-avatar">🦅</div>
-        <p style="color: #888; margin-bottom: 15px;">the best</p>
+        <h1 class="glitch" data-text="SİSTEME GİRİŞ YAPILDI">SİSTEME GİRİŞ YAPILDI</h1>
+        
+        <img src="profil.jpeg" alt="Siber Profil" class="siber-profil-fotosu">
 
-        <div style="margin-bottom: 20px;">
+        <p class="the-best-yazisi">the best</p>
+
+        <div class="buton-kutusu">
             <a href="https://instagram.com/hazrwti" target="_blank" class="siber-buton">Instagram</a>
-            <button id="game-btn" class="siber-buton">Oyun Başlat</button>
+            <a href="https://t.me/gotunu" target="_blank" class="siber-buton">Telegram</a>
+        </div>
+
+        <!-- ENTEGRE TERMİNAL -->
+        <div id="hacker-terminal" onclick="document.getElementById('terminal-input').focus()">
+            <div id="terminal-history">Siber sisteme başarıyla bağlanıldı.
+Komut listesi için 'help' yazın.</div>
+            <div class="terminal-input-line">
+                <span class="terminal-prefix">Wexemir@siber-us:~$</span>
+                <input type="text" id="terminal-input" autocomplete="off" autofocus>
+            </div>
         </div>
     </div>
 
-    <!-- Oyun Ekranı Katmanı -->
-    <div id="game-overlay">
-        <button id="close-game-btn">X</button>
-        <h2 style="color: var(--main-color); margin-bottom: 10px;">CYBER FLAPPER</h2>
-        <p style="font-size: 12px; margin-bottom: 15px; color: var(--main-color);">Zıplamak için tıkla veya Space tuşuna bas</p>
-        <canvas id="flappy-canvas" width="400" height="400"></canvas>
-    </div>
-
     <script>
+        // --- ÖZEL İMLEÇ HAREKETİ ---
+        const cursor = document.getElementById('custom-cursor');
+        window.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // --- SİBER SES EFEKTLERİ ---
+        function playCyberSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.04);
+                gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.04);
+            } catch (e) {}
+        }
+
+        document.querySelectorAll('.siber-buton, #theme-switcher, #terminal-input').forEach(el => {
+            el.addEventListener('mouseenter', playCyberSound);
+            el.addEventListener('click', playCyberSound);
+        });
+
         // --- TEMA DEĞİŞTİRİCİ ---
         const themes = ['', 'theme-red', 'theme-blue'];
         let currentTheme = 0;
-        document.getElementById('theme-switcher').addEventListener('click', () => {
+        const themeBtn = document.getElementById('theme-switcher');
+
+        themeBtn.addEventListener('click', () => {
+            if(document.body.classList.contains('hacking-mode')) return;
             document.body.classList.remove('theme-red', 'theme-blue');
             currentTheme = (currentTheme + 1) % themes.length;
-            if (themes[currentTheme]) document.body.classList.add(themes[currentTheme]);
+            if (themes[currentTheme]) {
+                document.body.classList.add(themes[currentTheme]);
+            }
         });
 
-        // --- MATRİX YAĞMURU ---
+        // --- CANLI KONSOL LOGLARI ---
+        const consoleBox = document.getElementById('console-logs');
+        const logs = [
+            "[OK] Firewall Secure - 0 threats detected",
+            "[IP] Proxy Connection Established: 185.220.X.X",
+            "[SEC] SSL Encryption: ACTIVE (256-bit)",
+            "[SYS] Matrix Core stable. CPU load: 11%",
+            "[WARN] Port 80 monitored by admin",
+            "[OK] Database sync complete (0 leaks)"
+        ];
+
+        setInterval(() => {
+            const randomLog = logs[Math.floor(Math.random() * logs.length)];
+            const div = document.createElement('div');
+            div.textContent = randomLog;
+            consoleBox.appendChild(div);
+            if (consoleBox.children.length > 5) {
+                consoleBox.removeChild(consoleBox.firstChild);
+            }
+        }, 3500);
+
+        // --- INTERAKTIF TERMINAL MANTIGI ---
+        const termInput = document.getElementById('terminal-input');
+        const termHistory = document.getElementById('terminal-history');
+        const termContainer = document.getElementById('hacker-terminal');
+
+        termInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = termInput.value.trim().toLowerCase();
+                playCyberSound();
+                
+                let reply = `\nWexemir@siber-us:~$ ${termInput.value}\n`;
+
+                if (command === 'help') {
+                    reply += `Mevcut Komutlar:\n  help  - Komut listesini gösterir\n  stats - Kişisel veri ve istatistikleri çeker\n  hack  - Sahte siber saldırı simülasyonu başlatır\n  clear - Ekranı temizler`;
+                } else if (command === 'stats') {
+                    reply += `[+] KULÜP: BEŞİKTAŞ JK 🦅 (KARA KARTAL)\n[+] FAVORİ OYUNLAR: Minecraft, FIFA\n[+] DURUM: Siber Yönetici Aktif`;
+                } else if (command === 'clear') {
+                    termHistory.textContent = '';
+                    termInput.value = '';
+                    return;
+                } else if (command === 'hack') {
+                    reply += `[CRITICAL] UYARI: SİBER SALDIRI BAŞLATILIYOR...\n[!] Bütün sunucu protokolleri devre dışı bırakılıyor!`;
+                    triggerFakeHack();
+                } else if (command === '') {
+                    reply = `\nWexemir@siber-us:~$\n`;
+                } else {
+                    reply += `Komut bulunamadı: '${command}'. Yardım için 'help' yazın.`;
+                }
+
+                termHistory.textContent += reply;
+                termInput.value = '';
+                termContainer.scrollTop = termContainer.scrollHeight;
+            }
+        });
+
+        function triggerFakeHack() {
+            document.body.classList.add('hacking-mode');
+            termInput.disabled = true;
+
+            let hackInterval = setInterval(() => {
+                const hackLogs = [
+                    "BYPASSING FIREWALL...",
+                    "INJECTING EXPLOIT...",
+                    "ACCESSING CORE DATABASE...",
+                    "DOWNLOADING DATA PACKETS...",
+                    "ROOT ACCESS GRANTED!"
+                ];
+                termHistory.textContent += `\n[ALERT] ` + hackLogs[Math.floor(Math.random() * hackLogs.length)];
+                termContainer.scrollTop = termContainer.scrollHeight;
+            }, 600);
+
+            setTimeout(() => {
+                clearInterval(hackInterval);
+                document.body.classList.remove('hacking-mode');
+                termInput.disabled = false;
+                termHistory.textContent += `\n\n[SUCCESS] Saldırı simülasyonu tamamlandı. Sistem kararlı moda döndü.\n`;
+                termInput.focus();
+                termContainer.scrollTop = termContainer.scrollHeight;
+            }, 4000);
+        }
+
+        // --- MATRIX YAĞMURU ---
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
         canvas.height = window.innerHeight;
         canvas.width = window.innerWidth;
 
-        const characters = '01ABCDEF'.split('');
+        const matrixChar = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=<>[]#!?';
+        const characters = matrixChar.split('');
+
         const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
+        const columns = canvas.width / fontSize; 
+
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1; 
+        }
+
+        function getActiveColor() {
+            if (document.body.classList.contains('hacking-mode')) return '#ff0000';
+            if (document.body.classList.contains('theme-red')) return '#ff0033';
+            if (document.body.classList.contains('theme-blue')) return '#00d2ff';
+            return '#00ff00';
+        }
 
         function drawMatrix() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const computedColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color').trim();
-            ctx.fillStyle = computedColor || '#00ff00';
+            ctx.fillStyle = getActiveColor();
             ctx.font = fontSize + 'px Courier New';
 
             for (let i = 0; i < drops.length; i++) {
@@ -223,127 +447,14 @@
                 drops[i]++;
             }
         }
+
         setInterval(drawMatrix, 33);
 
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
-
-        // --- OYUN MOTORU ---
-        const gameOverlay = document.getElementById('game-overlay');
-        const gameBtn = document.getElementById('game-btn');
-        const closeGameBtn = document.getElementById('close-game-btn');
-        const gameCanvas = document.getElementById('flappy-canvas');
-        const gameCtx = gameCanvas.getContext('2d');
-
-        let animationId = null;
-        let gameRunning = false;
-        let bird, pipes, score, gameOverState;
-
-        function resetGame() {
-            bird = { x: 50, y: 150, size: 20, gravity: 0.4, velocity: 0, jump: -7 };
-            pipes = [];
-            score = 0;
-            gameOverState = false;
-        }
-
-        function runGame() {
-            if (!gameRunning) return;
-
-            gameCtx.fillStyle = '#050505';
-            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-            const activeColor = getComputedStyle(document.documentElement).getPropertyValue('--main-color').trim();
-
-            if (!gameOverState) {
-                bird.velocity += bird.gravity;
-                bird.y += bird.velocity;
-
-                if (bird.y + bird.size > gameCanvas.height || bird.y < 0) {
-                    gameOverState = true;
-                }
-
-                if (Math.random() < 0.02) {
-                    const gap = 120;
-                    const height = Math.floor(Math.random() * 200) + 50;
-                    pipes.push({ x: gameCanvas.width, top: height, bottom: gameCanvas.height - height - gap, width: 40 });
-                }
-
-                pipes.forEach(p => p.x -= 2.5);
-                pipes = pipes.filter(p => p.x + p.width > 0);
-
-                pipes.forEach(p => {
-                    if (
-                        bird.x + bird.size > p.x &&
-                        bird.x < p.x + p.width &&
-                        (bird.y < p.top || bird.y + bird.size > gameCanvas.height - p.bottom)
-                    ) {
-                        gameOverState = true;
-                    }
-                });
-            }
-
-            // Boruları çiz
-            gameCtx.fillStyle = activeColor;
-            pipes.forEach(p => {
-                gameCtx.fillRect(p.x, 0, p.width, p.top);
-                gameCtx.fillRect(p.x, gameCanvas.height - p.bottom, p.width, p.bottom);
-            });
-
-            // Kuşu çiz
-            gameCtx.fillStyle = '#fff';
-            gameCtx.fillRect(bird.x, bird.y, bird.size, bird.size);
-
-            // Skor
-            gameCtx.fillStyle = activeColor;
-            gameCtx.font = "18px 'Courier New'";
-            gameCtx.fillText(`SKOR: ${score++}`, 15, 30);
-
-            if (gameOverState) {
-                gameCtx.fillStyle = 'rgba(0,0,0,0.85)';
-                gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-                gameCtx.fillStyle = '#ff0000';
-                gameCtx.font = "24px 'Courier New'";
-                gameCtx.fillText("OYUN BİTTİ!", 130, 180);
-                gameCtx.fillStyle = activeColor;
-                gameCtx.font = "14px 'Courier New'";
-                gameCtx.fillText("Yeniden başlamak için tıkla", 90, 220);
-            }
-
-            animationId = requestAnimationFrame(runGame);
-        }
-
-        function triggerJump() {
-            if (gameOverState) {
-                resetGame();
-            } else {
-                bird.velocity = bird.jump;
-            }
-        }
-
-        gameBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            gameOverlay.style.display = 'flex';
-            gameRunning = true;
-            resetGame();
-            if (animationId) cancelAnimationFrame(animationId);
-            runGame();
-        });
-
-        closeGameBtn.addEventListener('click', () => {
-            gameOverlay.style.display = 'none';
-            gameRunning = false;
-            if (animationId) cancelAnimationFrame(animationId);
-        });
-
-        gameCanvas.addEventListener('click', triggerJump);
-        window.addEventListener('keydown', (e) => {
-            if (e.key === ' ' && gameRunning) {
-                e.preventDefault();
-                triggerJump();
-            }
-        });
     </script>
+
 </body>
 </html>
